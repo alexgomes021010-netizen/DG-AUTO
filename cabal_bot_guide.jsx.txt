@@ -1,0 +1,1071 @@
+import { useState } from "react";
+
+const sections = [
+  {
+    id: "intro",
+    icon: "⚙️",
+    title: "Visão Geral",
+    content: null,
+  },
+  {
+    id: "arch",
+    icon: "🏗️",
+    title: "Arquitetura",
+    content: null,
+  },
+  {
+    id: "memory",
+    icon: "🧠",
+    title: "Leitura de Memória",
+    content: null,
+  },
+  {
+    id: "combo",
+    icon: "⚔️",
+    title: "Sistema de Combo",
+    content: null,
+  },
+  {
+    id: "dungeon",
+    icon: "🏰",
+    title: "Dungeon Automática",
+    content: null,
+  },
+  {
+    id: "vision",
+    icon: "👁️",
+    title: "Visão Computacional",
+    content: null,
+  },
+  {
+    id: "full",
+    icon: "🤖",
+    title: "Bot Completo",
+    content: null,
+  },
+];
+
+const CodeBlock = ({ code, lang = "python" }) => {
+  const [copied, setCopied] = useState(false);
+  const copy = () => {
+    navigator.clipboard.writeText(code);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1500);
+  };
+  return (
+    <div style={{ position: "relative", margin: "1.2rem 0" }}>
+      <button
+        onClick={copy}
+        style={{
+          position: "absolute",
+          top: 10,
+          right: 12,
+          background: copied ? "#22c55e" : "#334155",
+          color: "#e2e8f0",
+          border: "none",
+          borderRadius: 5,
+          padding: "3px 12px",
+          fontSize: 11,
+          cursor: "pointer",
+          fontFamily: "monospace",
+          letterSpacing: 1,
+          zIndex: 2,
+          transition: "background 0.2s",
+        }}
+      >
+        {copied ? "✓ Copiado" : "Copiar"}
+      </button>
+      <pre
+        style={{
+          background: "#0d1117",
+          color: "#c9d1d9",
+          borderRadius: 10,
+          padding: "1.2rem 1.4rem",
+          fontSize: 13,
+          lineHeight: 1.7,
+          overflowX: "auto",
+          border: "1px solid #21262d",
+          fontFamily: "'Fira Code', 'Cascadia Code', monospace",
+        }}
+      >
+        <code dangerouslySetInnerHTML={{ __html: highlight(code) }} />
+      </pre>
+    </div>
+  );
+};
+
+function highlight(code) {
+  return code
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/(#[^\n]*)/g, '<span style="color:#8b949e">$1</span>')
+    .replace(
+      /\b(import|from|def|class|return|if|elif|else|while|for|in|not|and|or|True|False|None|try|except|break|continue|pass|with|as|self|lambda|yield|async|await|raise|global|nonlocal)\b/g,
+      '<span style="color:#ff7b72">$1</span>'
+    )
+    .replace(
+      /("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')/g,
+      '<span style="color:#a5d6ff">$1</span>'
+    )
+    .replace(/\b(\d+\.?\d*)\b/g, '<span style="color:#f2cc60">$1</span>')
+    .replace(
+      /\b([A-Z][A-Za-z0-9_]*)\b/g,
+      '<span style="color:#ffa657">$1</span>'
+    );
+}
+
+const Badge = ({ text, color }) => (
+  <span
+    style={{
+      background: color + "22",
+      color: color,
+      border: `1px solid ${color}44`,
+      borderRadius: 5,
+      padding: "2px 9px",
+      fontSize: 11,
+      fontWeight: 700,
+      letterSpacing: 1,
+      marginRight: 6,
+      fontFamily: "monospace",
+    }}
+  >
+    {text}
+  </span>
+);
+
+const Callout = ({ type, children }) => {
+  const styles = {
+    info: { bg: "#1e3a5f", border: "#3b82f6", icon: "ℹ️" },
+    warn: { bg: "#3b2f00", border: "#f59e0b", icon: "⚠️" },
+    tip: { bg: "#0d3320", border: "#22c55e", icon: "💡" },
+  };
+  const s = styles[type] || styles.info;
+  return (
+    <div
+      style={{
+        background: s.bg,
+        borderLeft: `4px solid ${s.border}`,
+        borderRadius: "0 8px 8px 0",
+        padding: "0.75rem 1rem",
+        margin: "1rem 0",
+        fontSize: 13.5,
+        color: "#e2e8f0",
+        lineHeight: 1.6,
+      }}
+    >
+      {s.icon} {children}
+    </div>
+  );
+};
+
+const sectionContent = {
+  intro: (
+    <div>
+      <p style={{ color: "#94a3b8", lineHeight: 1.8, marginBottom: "1rem" }}>
+        Este guia ensina como construir um bot educacional para um jogo offline
+        estilo Cabal Online em Python. Você aprenderá os conceitos fundamentais
+        por trás de bots de MMORPG: leitura de memória, automação de input,
+        visão computacional e máquinas de estado.
+      </p>
+      <Callout type="warn">
+        Este guia é <strong>estritamente educacional</strong> para jogos
+        offline/privados. Usar bots em jogos online viola os Termos de Serviço e
+        pode resultar em banimento.
+      </Callout>
+      <h3 style={{ color: "#fbbf24", fontSize: 14, marginTop: "1.5rem" }}>
+        🧰 Dependências necessárias
+      </h3>
+      <CodeBlock
+        code={`# Instale todas as dependências
+pip install pymem pyautogui opencv-python pillow keyboard pynput numpy`}
+      />
+      <h3 style={{ color: "#fbbf24", fontSize: 14, marginTop: "1rem" }}>
+        📂 Estrutura do projeto
+      </h3>
+      <CodeBlock
+        lang="text"
+        code={`cabal_bot/
+├── main.py              # Ponto de entrada
+├── bot_core.py          # Lógica central do bot
+├── memory_reader.py     # Leitura de memória do processo
+├── combo_engine.py      # Motor de combos de habilidades
+├── dungeon_navigator.py # Automação de dungeons
+├── vision.py            # Visão computacional (OpenCV)
+├── input_handler.py     # Simulação de teclado/mouse
+└── config.py            # Configurações e offsets`}
+      />
+    </div>
+  ),
+
+  arch: (
+    <div>
+      <p style={{ color: "#94a3b8", lineHeight: 1.8, marginBottom: "1rem" }}>
+        A arquitetura usa uma{" "}
+        <strong style={{ color: "#e2e8f0" }}>Máquina de Estados Finitos</strong>{" "}
+        (FSM) para controlar o comportamento do bot. Cada estado representa uma
+        ação do personagem.
+      </p>
+      <CodeBlock
+        code={`# bot_core.py - Máquina de Estados do Bot
+from enum import Enum, auto
+import time
+
+class BotState(Enum):
+    IDLE        = auto()  # Parado, aguardando
+    NAVIGATING  = auto()  # Andando até dungeon/mob
+    COMBAT      = auto()  # Em combate
+    COMBO       = auto()  # Executando sequência de habilidades
+    LOOTING     = auto()  # Coletando drops
+    HEALING     = auto()  # Usando poção/heal
+    DUNGEON     = auto()  # Navegando dungeon automática
+    DEAD        = auto()  # Morto, aguardando respawn
+
+class BotCore:
+    def __init__(self, memory, combo_engine, navigator, vision):
+        self.state = BotState.IDLE
+        self.memory = memory
+        self.combo = combo_engine
+        self.navigator = navigator
+        self.vision = vision
+        self.running = False
+        self.target = None
+
+    def tick(self):
+        """Executado ~30x por segundo – coração do bot"""
+        hp = self.memory.get_hp()
+        mp = self.memory.get_mp()
+
+        # Transições de estado
+        if hp == 0:
+            self.state = BotState.DEAD
+        elif hp < 30 and self.state != BotState.HEALING:
+            self.state = BotState.HEALING
+        elif self.state == BotState.IDLE:
+            self.target = self.vision.find_nearest_enemy()
+            if self.target:
+                self.state = BotState.NAVIGATING
+
+        # Executa lógica do estado atual
+        self._execute_state()
+
+    def _execute_state(self):
+        match self.state:
+            case BotState.NAVIGATING:
+                reached = self.navigator.move_to(self.target)
+                if reached:
+                    self.state = BotState.COMBAT
+            case BotState.COMBAT:
+                self.combo.auto_attack(self.target)
+                enemy_dead = self.vision.is_enemy_dead()
+                if enemy_dead:
+                    self.state = BotState.LOOTING
+            case BotState.COMBO:
+                done = self.combo.execute_next_skill()
+                if done:
+                    self.state = BotState.COMBAT
+            case BotState.HEALING:
+                self.combo.use_potion()
+                self.state = BotState.COMBAT
+            case BotState.LOOTING:
+                self.navigator.loot()
+                self.state = BotState.IDLE
+            case BotState.DEAD:
+                time.sleep(5)  # Espera respawn
+                self.state = BotState.IDLE
+
+    def run(self):
+        self.running = True
+        print("[BOT] Iniciado!")
+        while self.running:
+            self.tick()
+            time.sleep(1 / 30)  # 30 ticks/s`}
+      />
+    </div>
+  ),
+
+  memory: (
+    <div>
+      <p style={{ color: "#94a3b8", lineHeight: 1.8, marginBottom: "1rem" }}>
+        Leitura de memória permite obter HP, MP, posição e status do personagem
+        diretamente da RAM do processo do jogo, sem depender de imagens.
+      </p>
+      <Callout type="tip">
+        Use o <strong>Cheat Engine</strong> (gratuito) para descobrir os offsets
+        de memória do seu jogo offline. Faça uma scan de HP atual → mude o valor
+        no jogo → "Next scan" até isolar o endereço.
+      </Callout>
+      <CodeBlock
+        code={`# memory_reader.py
+import pymem
+import pymem.process
+import struct
+
+class MemoryReader:
+    def __init__(self, process_name: str):
+        self.pm = None
+        self.process_name = process_name
+        self.base_addr = None
+
+        # Offsets descobertos com Cheat Engine (exemplo)
+        # Para seu jogo, descubra com Cheat Engine
+        self.OFFSETS = {
+            "hp_current":  0x00A5BC10,  # HP atual
+            "hp_max":      0x00A5BC14,  # HP máximo
+            "mp_current":  0x00A5BC18,  # MP atual
+            "mp_max":      0x00A5BC1C,  # MP máximo
+            "pos_x":       0x00A5BD00,  # Posição X no mapa
+            "pos_y":       0x00A5BD04,  # Posição Y no mapa
+            "player_level":0x00A5BC20,  # Nível do personagem
+            "target_hp":   0x00A5C000,  # HP do alvo atual
+            "in_combat":   0x00A5BE00,  # Flag: está em combate?
+        }
+
+    def attach(self):
+        """Conecta ao processo do jogo"""
+        try:
+            self.pm = pymem.Pymem(self.process_name)
+            self.base_addr = pymem.process.module_from_name(
+                self.pm.process_handle,
+                self.process_name
+            ).lpBaseOfDll
+            print(f"[MEM] Conectado a '{self.process_name}' @ 0x{self.base_addr:X}")
+            return True
+        except Exception as e:
+            print(f"[MEM] Falha: {e}")
+            return False
+
+    def _read_int(self, offset: int) -> int:
+        """Lê um inteiro de 4 bytes na posição base + offset"""
+        addr = self.base_addr + offset
+        return self.pm.read_int(addr)
+
+    def _read_float(self, offset: int) -> float:
+        """Lê um float de 4 bytes"""
+        addr = self.base_addr + offset
+        return self.pm.read_float(addr)
+
+    # ── Getters convenientes ──────────────────────────────────
+    def get_hp(self) -> int:
+        return self._read_int(self.OFFSETS["hp_current"])
+
+    def get_hp_max(self) -> int:
+        return self._read_int(self.OFFSETS["hp_max"])
+
+    def get_hp_pct(self) -> float:
+        """Retorna HP em percentual (0–100)"""
+        max_hp = self.get_hp_max()
+        return (self.get_hp() / max_hp * 100) if max_hp > 0 else 0
+
+    def get_mp(self) -> int:
+        return self._read_int(self.OFFSETS["mp_current"])
+
+    def get_mp_pct(self) -> float:
+        max_mp = self._read_int(self.OFFSETS["mp_max"])
+        return (self.get_mp() / max_mp * 100) if max_mp > 0 else 0
+
+    def get_position(self) -> tuple[float, float]:
+        x = self._read_float(self.OFFSETS["pos_x"])
+        y = self._read_float(self.OFFSETS["pos_y"])
+        return (x, y)
+
+    def get_target_hp(self) -> int:
+        return self._read_int(self.OFFSETS["target_hp"])
+
+    def is_in_combat(self) -> bool:
+        return bool(self._read_int(self.OFFSETS["in_combat"]))`}
+      />
+    </div>
+  ),
+
+  combo: (
+    <div>
+      <p style={{ color: "#94a3b8", lineHeight: 1.8, marginBottom: "1rem" }}>
+        O sistema de combo gerencia sequências de habilidades com cooldowns,
+        prioridades e condições (MP mínimo, buff ativo, etc).
+      </p>
+      <CodeBlock
+        code={`# combo_engine.py
+import time
+import pyautogui
+import keyboard
+from dataclasses import dataclass, field
+from typing import Callable
+
+@dataclass
+class Skill:
+    name: str
+    key: str               # Tecla do hotbar (ex: '1', '2', 'q', 'e')
+    cooldown: float        # Segundos entre usos
+    mp_cost: int           # Custo de MP
+    priority: int          # Menor = maior prioridade
+    condition: Callable    # Função que retorna True se pode usar
+    last_used: float = field(default=0.0, init=False)
+
+    def is_ready(self) -> bool:
+        return time.time() - self.last_used >= self.cooldown
+
+    def use(self):
+        keyboard.press_and_release(self.key)
+        self.last_used = time.time()
+        print(f"  [SKILL] {self.name}")
+
+class ComboEngine:
+    def __init__(self, memory_reader):
+        self.mem = memory_reader
+        self.skills: list[Skill] = []
+        self._setup_default_skills()
+
+    def _setup_default_skills(self):
+        """
+        Monte seu combo aqui!
+        Cada habilidade tem uma condição pra ser usada.
+        """
+        mp = lambda: self.mem.get_mp()
+        hp_pct = lambda: self.mem.get_hp_pct()
+
+        self.skills = [
+            # ── Alta prioridade ──────────────────────────────
+            Skill(
+                name="Poção de HP",
+                key='F1',
+                cooldown=3.0,
+                mp_cost=0,
+                priority=0,
+                condition=lambda: hp_pct() < 40,
+            ),
+            Skill(
+                name="Buff de Ataque",
+                key='b',
+                cooldown=60.0,
+                mp_cost=50,
+                priority=1,
+                condition=lambda: mp() > 50,
+            ),
+            # ── Habilidades de dano ──────────────────────────
+            Skill(
+                name="Golpe Fatal",    # Skill pesada, cooldown longo
+                key='4',
+                cooldown=10.0,
+                mp_cost=80,
+                priority=2,
+                condition=lambda: mp() > 80,
+            ),
+            Skill(
+                name="Corte Duplo",
+                key='3',
+                cooldown=4.0,
+                mp_cost=40,
+                priority=3,
+                condition=lambda: mp() > 40,
+            ),
+            Skill(
+                name="Slash Rápido",
+                key='2',
+                cooldown=2.0,
+                mp_cost=20,
+                priority=4,
+                condition=lambda: mp() > 20,
+            ),
+            Skill(
+                name="Ataque Básico", # Sempre disponível
+                key='1',
+                cooldown=0.8,
+                mp_cost=0,
+                priority=5,
+                condition=lambda: True,
+            ),
+        ]
+
+    def execute_best_skill(self) -> bool:
+        """Executa a melhor skill disponível (mais prioritária + pronta)"""
+        # Ordena por prioridade e filtra as prontas com condição válida
+        candidates = sorted(
+            [s for s in self.skills if s.is_ready() and s.condition()],
+            key=lambda s: s.priority
+        )
+        if candidates:
+            candidates[0].use()
+            return True
+        return False
+
+    def execute_rotation(self, rotation_keys: list[str], delay=0.15):
+        """
+        Executa uma rotação fixa de habilidades em sequência.
+        Útil para combos pré-definidos de classes do Cabal.
+        """
+        for key in rotation_keys:
+            keyboard.press_and_release(key)
+            time.sleep(delay)
+
+    def use_potion(self):
+        """Usa poção de HP imediatamente (F1)"""
+        keyboard.press_and_release('F1')
+        print("[HEAL] Poção usada!")
+
+    def auto_attack_loop(self, duration: float = 3.0):
+        """
+        Loop de combate: executa a melhor skill disponível
+        por 'duration' segundos.
+        """
+        start = time.time()
+        print(f"[COMBAT] Iniciando combate por {duration}s...")
+        while time.time() - start < duration:
+            self.execute_best_skill()
+            time.sleep(0.1)  # Pequeno delay entre checks`}
+      />
+      <Callout type="tip">
+        Ajuste os <strong>cooldowns</strong> e as <strong>teclas</strong> de
+        acordo com o seu jogo. Em jogos estilo Cabal, o combo de BM (Battle Mode)
+        geralmente é uma rotação fixa.
+      </Callout>
+    </div>
+  ),
+
+  dungeon: (
+    <div>
+      <p style={{ color: "#94a3b8", lineHeight: 1.8, marginBottom: "1rem" }}>
+        O navegador de dungeon usa waypoints de coordenadas e detecta eventos
+        como portas, salas e boss usando visão computacional + leitura de
+        memória.
+      </p>
+      <CodeBlock
+        code={`# dungeon_navigator.py
+import time
+import math
+import pyautogui
+import keyboard
+
+class DungeonNavigator:
+    def __init__(self, memory, vision, combo):
+        self.mem = memory
+        self.vision = vision
+        self.combo = combo
+
+        # Mapeie os waypoints da dungeon manualmente (x, y)
+        # Dica: imprima get_position() enquanto anda para mapear
+        self.dungeon_routes = {
+            "dungeon_lvl1": [
+                (100.0, 200.0),   # Entrada
+                (150.0, 200.0),   # Corredor
+                (200.0, 250.0),   # Sala 1 (mobs)
+                (260.0, 250.0),   # Corredor 2
+                (300.0, 300.0),   # Sala 2 (mobs)
+                (350.0, 350.0),   # Boss room
+            ],
+            "dungeon_lvl2": [
+                # ... adicione mais dungeons
+            ]
+        }
+
+        self.current_route = []
+        self.current_waypoint_idx = 0
+        self.ARRIVAL_THRESHOLD = 5.0  # Distância pra considerar "chegou"
+
+    def load_dungeon(self, name: str):
+        """Carrega uma rota de dungeon"""
+        self.current_route = self.dungeon_routes.get(name, [])
+        self.current_waypoint_idx = 0
+        print(f"[DUNGEON] Rota '{name}' carregada ({len(self.current_route)} waypoints)")
+
+    def get_distance(self, target: tuple) -> float:
+        """Distância euclidiana entre posição atual e alvo"""
+        cx, cy = self.mem.get_position()
+        tx, ty = target
+        return math.sqrt((tx - cx) ** 2 + (ty - cy) ** 2)
+
+    def move_towards(self, target: tuple) -> bool:
+        """
+        Move o personagem em direção ao waypoint.
+        Retorna True quando chegou.
+        """
+        cx, cy = self.mem.get_position()
+        tx, ty = target
+        dist = self.get_distance(target)
+
+        if dist < self.ARRIVAL_THRESHOLD:
+            return True  # Chegou!
+
+        # Calcula ângulo e pressiona teclas direcionais
+        angle = math.atan2(ty - cy, tx - cx)
+        dx = math.cos(angle)
+        dy = math.sin(angle)
+
+        # Movimento baseado em direção relativa
+        if abs(dx) > abs(dy):
+            key = 'd' if dx > 0 else 'a'
+        else:
+            key = 's' if dy > 0 else 'w'
+
+        keyboard.press(key)
+        time.sleep(0.05)
+        keyboard.release(key)
+        return False
+
+    def run_dungeon(self, name: str):
+        """
+        Loop completo de dungeon:
+        1. Navega pelos waypoints
+        2. Combate mobs em cada sala
+        3. Coleta drops
+        4. Avança para o próximo waypoint
+        """
+        self.load_dungeon(name)
+        print(f"[DUNGEON] Iniciando '{name}'")
+
+        while self.current_waypoint_idx < len(self.current_route):
+            wp = self.current_route[self.current_waypoint_idx]
+            print(f"[DUNGEON] → Waypoint {self.current_waypoint_idx + 1}: {wp}")
+
+            # Navega até o waypoint
+            reached = False
+            timeout = time.time() + 30  # 30s máx por waypoint
+
+            while not reached:
+                if time.time() > timeout:
+                    print("[DUNGEON] ⚠️  Timeout no waypoint, pulando...")
+                    break
+
+                # Verifica se há inimigos no caminho
+                enemy = self.vision.find_nearest_enemy()
+                if enemy:
+                    print("[DUNGEON] ⚔️  Inimigo detectado – combatendo...")
+                    self.combo.auto_attack_loop(duration=5.0)
+                    self.loot()
+                else:
+                    reached = self.move_towards(wp)
+
+                time.sleep(0.05)
+
+            self.current_waypoint_idx += 1
+
+        print("[DUNGEON] ✅ Dungeon concluída!")
+
+    def loot(self):
+        """Coleta drops próximos pressionando a tecla de loot"""
+        print("[LOOT] Coletando drops...")
+        keyboard.press_and_release('z')  # Tecla padrão de loot
+        time.sleep(0.3)
+        # Alguns jogos precisam clicar no item – adapte conforme necessário
+
+    def enter_dungeon_portal(self):
+        """
+        Detecta e interage com o portal de entrada da dungeon
+        via template matching na tela.
+        """
+        portal_pos = self.vision.find_on_screen("assets/portal.png")
+        if portal_pos:
+            pyautogui.click(*portal_pos)
+            time.sleep(1.0)
+            # Confirma o diálogo de entrada (se houver)
+            ok_btn = self.vision.find_on_screen("assets/btn_ok.png")
+            if ok_btn:
+                pyautogui.click(*ok_btn)
+            print("[DUNGEON] Portal ativado!")
+            return True
+        return False`}
+      />
+    </div>
+  ),
+
+  vision: (
+    <div>
+      <p style={{ color: "#94a3b8", lineHeight: 1.8, marginBottom: "1rem" }}>
+        Visão computacional com OpenCV permite detectar inimigos, barras de HP,
+        itens no chão e elementos da UI sem precisar de leitura de memória.
+      </p>
+      <CodeBlock
+        code={`# vision.py
+import cv2
+import numpy as np
+import pyautogui
+from PIL import ImageGrab
+
+class VisionEngine:
+    def __init__(self):
+        # Cor dos nomes de inimigo sobre eles (ajuste pra seu jogo)
+        # Em jogos estilo Cabal, nomes de mob são geralmente vermelhos
+        self.ENEMY_COLOR_LOWER = np.array([0,   100, 100])   # HSV min
+        self.ENEMY_COLOR_UPPER = np.array([10,  255, 255])   # HSV max
+
+        # Cor da barra de HP do inimigo (geralmente vermelho)
+        self.HP_BAR_LOWER = np.array([0,   150, 150])
+        self.HP_BAR_UPPER = np.array([8,   255, 255])
+
+    def screenshot(self):
+        """Captura a tela atual como array NumPy (BGR)"""
+        img = ImageGrab.grab()
+        return cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR)
+
+    def find_on_screen(self, template_path: str, threshold=0.8):
+        """
+        Template matching: encontra uma imagem na tela.
+        Útil para botões, portais, ícones de UI.
+        """
+        screen = self.screenshot()
+        template = cv2.imread(template_path, cv2.IMREAD_UNCHANGED)
+        if template is None:
+            return None
+
+        # Converte para grayscale para matching mais rápido
+        s_gray = cv2.cvtColor(screen, cv2.COLOR_BGR2GRAY)
+        t_gray = cv2.cvtColor(template, cv2.COLOR_BGR2GRAY)
+
+        result = cv2.matchTemplate(s_gray, t_gray, cv2.TM_CCOEFF_NORMED)
+        _, max_val, _, max_loc = cv2.minMaxLoc(result)
+
+        if max_val >= threshold:
+            # Retorna centro do elemento encontrado
+            h, w = t_gray.shape
+            cx = max_loc[0] + w // 2
+            cy = max_loc[1] + h // 2
+            return (cx, cy)
+        return None
+
+    def find_nearest_enemy(self):
+        """
+        Detecta inimigos pela cor do nome/HP bar na tela.
+        Retorna posição (x, y) do mais próximo ao centro.
+        """
+        screen = self.screenshot()
+        hsv = cv2.cvtColor(screen, cv2.COLOR_BGR2HSV)
+
+        # Máscara de cor de inimigo
+        mask = cv2.inRange(hsv, self.ENEMY_COLOR_LOWER, self.ENEMY_COLOR_UPPER)
+
+        # Remove ruído
+        kernel = np.ones((3, 3), np.uint8)
+        mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel)
+
+        contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        if not contours:
+            return None
+
+        # Filtra contours pequenos demais
+        valid = [c for c in contours if cv2.contourArea(c) > 50]
+        if not valid:
+            return None
+
+        # Pega o mais próximo ao centro da tela
+        sh, sw = screen.shape[:2]
+        center = (sw // 2, sh // 2)
+
+        def dist_to_center(c):
+            M = cv2.moments(c)
+            if M["m00"] == 0:
+                return float('inf')
+            cx = int(M["m10"] / M["m00"])
+            cy = int(M["m01"] / M["m00"])
+            return ((cx - center[0])**2 + (cy - center[1])**2) ** 0.5
+
+        closest = min(valid, key=dist_to_center)
+        M = cv2.moments(closest)
+        if M["m00"] == 0:
+            return None
+        ex = int(M["m10"] / M["m00"])
+        ey = int(M["m01"] / M["m00"])
+        return (ex, ey)
+
+    def is_enemy_dead(self) -> bool:
+        """
+        Verifica se o inimigo alvo foi morto
+        (HP bar sumiu ou ficou zerada).
+        """
+        enemy = self.find_nearest_enemy()
+        return enemy is None  # Sem inimigo visível = morto
+
+    def read_hp_bar(self, region=None) -> float:
+        """
+        Lê a barra de HP do personagem na UI.
+        Retorna valor entre 0.0 e 1.0.
+        region = (x, y, w, h) da barra de HP na tela.
+        """
+        screen = self.screenshot()
+        if region:
+            x, y, w, h = region
+            bar = screen[y:y+h, x:x+w]
+        else:
+            # Posição padrão da barra (ajuste pra seu jogo)
+            bar = screen[950:960, 50:250]
+
+        hsv = cv2.cvtColor(bar, cv2.COLOR_BGR2HSV)
+        mask = cv2.inRange(hsv, self.HP_BAR_LOWER, self.HP_BAR_UPPER)
+        filled = np.count_nonzero(mask)
+        total = mask.size
+        return filled / total if total > 0 else 0.0`}
+      />
+    </div>
+  ),
+
+  full: (
+    <div>
+      <p style={{ color: "#94a3b8", lineHeight: 1.8, marginBottom: "1rem" }}>
+        O arquivo <code style={{ color: "#fbbf24" }}>main.py</code> conecta
+        todos os módulos e adiciona controles para iniciar/parar o bot com
+        hotkeys.
+      </p>
+      <CodeBlock
+        code={`# main.py – Ponto de entrada do bot
+import time
+import threading
+import keyboard
+from memory_reader import MemoryReader
+from combo_engine import ComboEngine
+from dungeon_navigator import DungeonNavigator
+from vision import VisionEngine
+from bot_core import BotCore, BotState
+
+# ─────────────────────────────────────────────────────────────
+# CONFIGURAÇÃO – Ajuste para o seu jogo
+# ─────────────────────────────────────────────────────────────
+PROCESS_NAME = "CabalClient.exe"  # Nome do executável do jogo
+DUNGEON_NAME = "dungeon_lvl1"     # Nome da dungeon para rodar
+HOTKEY_START = 'F9'               # Tecla para iniciar
+HOTKEY_STOP  = 'F10'              # Tecla para parar
+# ─────────────────────────────────────────────────────────────
+
+def main():
+    print("=" * 50)
+    print("  🤖 CABAL-STYLE BOT v1.0 (Educacional)")
+    print("=" * 50)
+    print(f"  Processo alvo : {PROCESS_NAME}")
+    print(f"  Iniciar       : {HOTKEY_START}")
+    print(f"  Parar         : {HOTKEY_STOP}")
+    print("=" * 50)
+
+    # 1. Leitura de memória
+    mem = MemoryReader(PROCESS_NAME)
+    if not mem.attach():
+        print("[ERRO] Não foi possível conectar ao jogo!")
+        print("       Certifique-se que o jogo está aberto.")
+        return
+
+    # 2. Inicializa módulos
+    vision  = VisionEngine()
+    combo   = ComboEngine(mem)
+    nav     = DungeonNavigator(mem, vision, combo)
+    bot     = BotCore(mem, combo, nav, vision)
+
+    def start_bot():
+        print(f"\n[BOT] ▶ Iniciando dungeon '{DUNGEON_NAME}'...")
+        bot.state = BotState.DUNGEON
+
+        # Roda dungeon em thread separada
+        def dungeon_loop():
+            nav.run_dungeon(DUNGEON_NAME)
+
+        t = threading.Thread(target=dungeon_loop, daemon=True)
+        t.start()
+        bot.run()
+
+    def stop_bot():
+        bot.running = False
+        print("\n[BOT] ⏹ Bot parado.")
+
+    # 3. Hotkeys globais
+    keyboard.add_hotkey(HOTKEY_START, start_bot)
+    keyboard.add_hotkey(HOTKEY_STOP,  stop_bot)
+
+    # 4. Loop de monitoramento
+    print(f"\n[BOT] Aguardando {HOTKEY_START} para iniciar...")
+    try:
+        while True:
+            if bot.running:
+                hp  = mem.get_hp_pct()
+                mp  = mem.get_mp_pct()
+                pos = mem.get_position()
+                print(
+                    f"\r[STATUS] HP: {hp:5.1f}%  "
+                    f"MP: {mp:5.1f}%  "
+                    f"Pos: ({pos[0]:.0f}, {pos[1]:.0f})  "
+                    f"Estado: {bot.state.name:<12}",
+                    end=""
+                )
+            time.sleep(0.5)
+    except KeyboardInterrupt:
+        stop_bot()
+        print("\n[BOT] Encerrado.")
+
+if __name__ == "__main__":
+    main()`}
+      />
+      <Callout type="info">
+        <strong>Próximos passos para aprender mais:</strong> Implemente logging
+        em CSV para analisar performance, adicione detecção de tela de loading
+        entre dungeons, e estude packet sniffing para entender como o cliente se
+        comunica com o servidor em jogos online (apenas para estudo!).
+      </Callout>
+      <div
+        style={{
+          marginTop: "1.5rem",
+          display: "grid",
+          gridTemplateColumns: "1fr 1fr",
+          gap: "0.75rem",
+        }}
+      >
+        {[
+          ["pymem", "Leitura de memória de processos Windows"],
+          ["pyautogui", "Controle de mouse e teclado"],
+          ["opencv-python", "Visão computacional e detecção"],
+          ["keyboard", "Hotkeys globais e input de teclado"],
+        ].map(([lib, desc]) => (
+          <div
+            key={lib}
+            style={{
+              background: "#0f172a",
+              border: "1px solid #1e293b",
+              borderRadius: 8,
+              padding: "0.75rem 1rem",
+            }}
+          >
+            <div
+              style={{
+                color: "#38bdf8",
+                fontFamily: "monospace",
+                fontSize: 13,
+                fontWeight: 700,
+              }}
+            >
+              {lib}
+            </div>
+            <div style={{ color: "#64748b", fontSize: 12, marginTop: 3 }}>
+              {desc}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  ),
+};
+
+export default function App() {
+  const [active, setActive] = useState("intro");
+
+  return (
+    <div
+      style={{
+        minHeight: "100vh",
+        background: "#020817",
+        color: "#e2e8f0",
+        fontFamily: "'IBM Plex Sans', 'Segoe UI', sans-serif",
+        display: "flex",
+      }}
+    >
+      {/* Sidebar */}
+      <aside
+        style={{
+          width: 210,
+          minWidth: 210,
+          background: "#0a0f1e",
+          borderRight: "1px solid #1e293b",
+          padding: "1.5rem 0",
+          position: "sticky",
+          top: 0,
+          height: "100vh",
+          overflowY: "auto",
+        }}
+      >
+        <div
+          style={{
+            padding: "0 1.2rem 1.5rem",
+            borderBottom: "1px solid #1e293b",
+          }}
+        >
+          <div
+            style={{
+              fontSize: 18,
+              fontWeight: 800,
+              color: "#f59e0b",
+              letterSpacing: -0.5,
+            }}
+          >
+            ⚔️ CabalBot
+          </div>
+          <div style={{ fontSize: 11, color: "#475569", marginTop: 3 }}>
+            Guia Educacional · Python
+          </div>
+        </div>
+        <nav style={{ marginTop: "0.75rem" }}>
+          {sections.map((s) => (
+            <button
+              key={s.id}
+              onClick={() => setActive(s.id)}
+              style={{
+                width: "100%",
+                textAlign: "left",
+                background: active === s.id ? "#1e3a5f" : "transparent",
+                border: "none",
+                borderLeft:
+                  active === s.id
+                    ? "3px solid #3b82f6"
+                    : "3px solid transparent",
+                color: active === s.id ? "#93c5fd" : "#64748b",
+                padding: "0.6rem 1.2rem",
+                cursor: "pointer",
+                fontSize: 13,
+                fontWeight: active === s.id ? 600 : 400,
+                transition: "all 0.15s",
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+              }}
+            >
+              <span>{s.icon}</span>
+              {s.title}
+            </button>
+          ))}
+        </nav>
+        <div
+          style={{
+            margin: "1.5rem 1.2rem 0",
+            padding: "0.75rem",
+            background: "#1a0a00",
+            borderRadius: 8,
+            border: "1px solid #92400e44",
+            fontSize: 11,
+            color: "#92400e",
+            lineHeight: 1.5,
+          }}
+        >
+          ⚠️ Somente para jogos <strong>offline</strong> e fins educacionais.
+        </div>
+      </aside>
+
+      {/* Main */}
+      <main style={{ flex: 1, padding: "2rem 2.5rem", maxWidth: 860 }}>
+        <div style={{ marginBottom: "1.5rem" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <span style={{ fontSize: 28 }}>
+              {sections.find((s) => s.id === active)?.icon}
+            </span>
+            <h1
+              style={{
+                fontSize: 24,
+                fontWeight: 800,
+                color: "#f1f5f9",
+                margin: 0,
+              }}
+            >
+              {sections.find((s) => s.id === active)?.title}
+            </h1>
+          </div>
+          <div
+            style={{
+              display: "flex",
+              gap: 6,
+              marginTop: "0.75rem",
+              flexWrap: "wrap",
+            }}
+          >
+            <Badge text="Python 3.11+" color="#3b82f6" />
+            <Badge text="Windows" color="#8b5cf6" />
+            <Badge text="Offline Only" color="#f59e0b" />
+            <Badge text="Educacional" color="#22c55e" />
+          </div>
+        </div>
+
+        <div>{sectionContent[active]}</div>
+      </main>
+    </div>
+  );
+}
